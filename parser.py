@@ -1,6 +1,6 @@
 import main, player, layout
 
-directional_verbs = ['move', 'walk', 'go']
+directional_verbs = ['move', 'walk', 'go', 'look']
 directions = ['north', 'south', 'east', 'west', 'northwest', 'northeast', 
               'southwest', 'southeast', 'n', 'e', 's', 'w', 'nw', 'ne', 'sw', 
               'se', 'up', 'down', 'u', 'd']
@@ -12,7 +12,7 @@ inventories = ['hand', 'inventory', 'surroundings', 'ground']
 other_verbs = ['attack', 'with']
 exit_verbs = ['quit', 'exit']
 
-# Calls main.user's x method.
+# Calls main.user's x method, used for checking and other.
 vague_verb = lambda x, y: eval("main.user." + x + "_" + y + "()")
 # Calls main.user's x method with y parameters, used for equipping and dropping.
 speci_verb = lambda x, y: eval("main.user." + x + "(\"" + y + "\")")
@@ -21,7 +21,9 @@ default_error = "I don't recognize that.\n"
 
 # Formats directions.
 def directional_formatter(direction):
-    if len(direction) < 6:
+    if len(direction) <= 2:
+        return direction
+    elif len(direction) < 6:
         return direction[0]
     elif len(direction) > 5:
         return direction[0] + direction[5]
@@ -36,10 +38,13 @@ def retry(error_message):
     parse_text(choice)
 
 # Avoids redundant code.
-def direction_handler(choice):
+def direction_handler(verb, choice):
     choice = directional_formatter(choice)
     if hasattr(layout.world, choice):
-        layout.world = layout.movement(choice)
+        if verb == 'look':
+            layout.look(choice)
+        else:    
+            layout.world = layout.movement(choice)
     else:
         retry(default_error)
 
@@ -52,7 +57,7 @@ def additional_term(verb_type, verb=None):
         choice = choice[0]
         if verb_type == 'direction':
             if choice in directions:
-                direction_handler(choice)
+                direction_handler(verb, choice)
             else:
                 retry(default_error)
         elif verb_type == 'player':
@@ -80,9 +85,9 @@ def parse_text(text):
             exit()
         elif user_in in directional_verbs:
             print("Where would you like to {}?".format(user_in))
-            additional_term('direction')
+            additional_term('direction', user_in)
         elif user_in in directions:
-            direction_handler(user_in)
+            direction_handler('walk', user_in)
         elif user_in in vague_player or user_in in specific_item:
             print("What would you like to {}?".format(user_in))
             additional_term('player', user_in)
@@ -91,7 +96,7 @@ def parse_text(text):
     elif len(text) == 2:
         user_verb, user_choice = text[0], text[1]
         if user_verb in directional_verbs and user_choice in directions:
-            direction_handler(user_choice)
+            direction_handler(user_verb, user_choice)
         elif user_verb in vague_player and user_choice in inventories:
             if user_choice == 'surroundings':
                 user_choice = 'ground'
@@ -102,13 +107,3 @@ def parse_text(text):
             retry(default_error)
     else:
         pass
-
-
-"""
-def verb_choice(user, verb):
-    # Attack creature.
-    elif verb[0] == 'attack' and verb[1] == 'with':
-        for i in world.contents:
-            if hasattr(i, 'is_enemy'):
-                i.damaged(verb[2])
-"""

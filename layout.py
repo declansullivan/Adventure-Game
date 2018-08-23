@@ -1,8 +1,14 @@
 import parser, usables, player
 
+directional_dict = {"n": "north", "e": "east", "s": "south", "w": "west",
+                    'nw': "northwest", "ne": "northeast", "sw": "southwest",
+                    "se": "southeast"}
+
 class Map:
-    def __init__(self, name):
+    def __init__(self, name, vowel_sound=False):
         self.name = name
+        self.vowel = 'n' if vowel_sound else ''
+
         self.message = ""
         self.description = ""
 
@@ -33,27 +39,27 @@ class Map:
         
 
 def build_map():
-    mountaintop = Map("Mountaintop")
-    fork = Map("Fork")
-    bridge = Map("Bridge")
-    fortress = Map("Fortress")
-    ledge = Map("Ledge")
-    cave_entrance = Map("Cave Entrance")
-    cave_exit = Map("Cave Exit")
-    path = Map("Winding Path")
-    plains = Map("Plains")
-    ruins = Map("Ruins")
-    beach = Map("Beach")
-    lighthouse = Map("Lighthouse")
-    jetty = Map("Jetty")
-    oil_rig = Map("Oil Rig")
-    wasteland = Map("Wasteland")
-    graveyard = Map("Graveyard")
-    town = Map("Abandoned Town")
-    waterfall = Map("Waterfall")
-    facility = Map("Mining Facility")
-    quarry = Map("Quarry")
-    river = Map("River")
+    mountaintop = Map("mountaintop")
+    fork = Map("fork")
+    bridge = Map("bridge")
+    fortress = Map("fortress")
+    ledge = Map("ledge")
+    cave_entrance = Map("cave entrance")
+    cave_exit = Map("cave exit")
+    path = Map("winding path")
+    plains = Map("plains")
+    ruins = Map("ruins")
+    beach = Map("beach")
+    lighthouse = Map("lighthouse")
+    jetty = Map("jetty")
+    oil_rig = Map("oil rig", True)
+    wasteland = Map("wasteland")
+    graveyard = Map("graveyard")
+    town = Map("abandoned town", True)
+    waterfall = Map("waterfall")
+    facility = Map("mining facility")
+    quarry = Map("quarry")
+    river = Map("river")
 
     ## ATTRIBUTES ##
 
@@ -163,16 +169,22 @@ def build_map():
 
 
 def movement(direction):
-    print('world.' + direction)
     new_loc = eval('world.' + direction)
     if new_loc == None:
         parser.retry("That is not a valid direction to move in.\n")
         return world
     else:
-        print(new_loc)
-        print(repr(new_loc))
+        print("You walk {} and arrive at a{} {}.".format(directional_dict.get(direction), \
+                                                    new_loc.vowel, new_loc.name))
         return new_loc
 
+def look(direction):
+    loc = eval('world.' + direction)
+    if loc == None:
+        parser.retry("There is nothing in that direction.\n")
+    else:
+        print("To the {} you see a{} {}.".format(directional_dict.get(direction), \
+                                                loc.vowel, loc.name))
 
 world = build_map()
 
